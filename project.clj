@@ -17,13 +17,17 @@
   :plugins [[lein-figwheel "0.5.8"]
             [lein-cljsbuild "1.1.4" :exclusions [[org.clojure/clojure]]]]
 
-  :source-paths ["src"]
+  :source-paths ["src"
+                 "checkouts/infinitelives.utils/src"
+                 "checkouts/infinitelives.pixi/src"]
 
   :clean-targets ^{:protect false} ["resources/public/js/compiled" "target"]
 
   :cljsbuild {:builds
               [{:id "dev"
-                :source-paths ["src"]
+                :source-paths ["src"
+                               "checkouts/infinitelives.utils/src"
+                               "checkouts/infinitelives.pixi/src"]
 
                 ;; the presence of a :figwheel configuration here
                 ;; will cause figwheel to inject the figwheel client
@@ -47,10 +51,18 @@
                ;; production. You can build this with:
                ;; lein cljsbuild once min
                {:id "min"
-                :source-paths ["src"]
-                :compiler {:output-to "resources/public/js/compiled/dungeon_crawler.js"
+                :source-paths ["src"
+                               "checkouts/infinitelives.utils/src"
+                               "checkouts/infinitelives.pixi/src"
+                               ]
+                :compiler {:output-to "build/js/compiled/dungeon_crawler.js"
                            :main dungeon-crawler.core
                            :optimizations :advanced
+                           :externs ["externs/w3c_audio.js" "externs/w3c_gamepad.js" "externs/pixi.ext.js"]
+
+                                        ;:pseudo-names true
+                                        ;:pretty-print true
+
                            :pretty-print false}}]}
 
   :figwheel {;; :http-server-root "public" ;; default and assumes "resources"
