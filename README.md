@@ -1,6 +1,10 @@
 # dungeon-crawler
 
-FIXME: Write a one-line description of your library/project.
+A simple outline of some basic dungeon crawler functionality. Work in Progress.
+
+[PLAY IT NOW!](https://retrogradeorbit.github.io/dungeon-crawler/)
+
+![Title screen](./screenshot.png)
 
 ## Overview
 
@@ -30,7 +34,7 @@ To create a production build run:
     lein do clean, cljsbuild once min
 
 And open your browser in `resources/public/index.html`. You will not
-get live reloading, nor a REPL. 
+get live reloading, nor a REPL.
 
 ## License
 
