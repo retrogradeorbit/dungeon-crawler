@@ -8,7 +8,7 @@ A simple outline of some basic dungeon crawler functionality. Work in Progress.
 
 ## Overview
 
-FIXME: Write a paragraph about the library/project and highlight its goals.
+Tileset by Michele "Buch" Bucelli [OGA page](http://opengameart.org/users/buch) , Asset sponsor: Abram Connelly.
 
 ## Setup
 
