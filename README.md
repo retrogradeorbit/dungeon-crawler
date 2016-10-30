@@ -8,7 +8,7 @@ A simple outline of some basic dungeon crawler functionality. Work in Progress.
 
 ## Overview
 
-Tileset by Michele "Buch" Bucelli [OGA page](http://opengameart.org/users/buch) , Asset sponsor: Abram Connelly.
+Tileset by Michele "Buch" Bucelli ( [OGA page](http://opengameart.org/users/buch) ), Asset sponsor: Abram Connelly.
 
 ## Setup
 
