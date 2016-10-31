@@ -117,7 +117,7 @@
                             )]
       (m/with-sprite :tilemap
         [tile-map (tm/make-tilemap tile-sprites
-                                   :scale 4
+                                   :scale 2
                                    :particle-opts #{:uvs})]
 
         (while true
