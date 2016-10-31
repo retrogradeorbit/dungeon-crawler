@@ -145,9 +145,9 @@
                             )]
       (m/with-sprite :tilemap
         [tile-map (tm/make-tilemap tile-sprites
-                                   :scale 2
+                                   :scale 1
                                    :particle-opts #{:uvs})
-         player (s/make-sprite :down-1 :scale 2 :x -100 :y -100)]
+         player (s/make-sprite :down-1 :scale 1 :x -100 :y -100)]
 
         ;; door opens and closes
         (go
@@ -184,10 +184,10 @@
             (case (vec2/get-x joy)
               -1
               (do (s/set-texture! player :right-1)
-                  (s/set-scale! player -2 2))
+                  (s/set-scale! player -1 1))
               1
               (do (s/set-texture! player :right-1)
-                  (s/set-scale! player 2 2))
+                  (s/set-scale! player 1 1))
                nil
               )
 
