@@ -1,12 +1,12 @@
 CSS=build/css/style.css
 APP=build/js/compiled/dungeon_crawler.js
 IDX=build/index.html
-IMG=build/img/*.png
+IMG=build/img/tiles.png
 IMG_PUBLIC=$(subst build,resources/public,$(IMG))
 SFX_SOURCE=$(wildcard resources/public/sfx/*.ogg)
 SFX=$(subst resources/public,build,$(SFX_SOURCE))
 ME=$(shell basename $(shell pwd))
-REPO=git@github.com:retrogradeorbit/dungeon-crawler.git
+REPO=git@github.com:retrogradeorbit/tile-map.git
 
 all: $(APP) $(CSS) $(IDX) $(IMG) $(SFX) $(MUSIC)
 
