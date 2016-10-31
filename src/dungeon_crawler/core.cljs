@@ -100,6 +100,26 @@
    :door-left-shut-4 [160 192]
 })
 
+(def hero
+  {:up-1 {:pos [0 0] :size [16 16]}
+   :up-2 {:pos [16 0] :size [16 16]}
+   :up-3 {:pos [32 0] :size [16 16]}
+   :up-4 {:pos [48 0] :size [16 16]}
+
+   :right-1 {:pos [0 16] :size [16 16]}
+   :right-2 {:pos [16 16] :size [16 16]}
+   :right-3 {:pos [32 16] :size [16 16]}
+   :right-4 {:pos [48 16] :size [16 16]}
+
+   :down-1 {:pos [0 32] :size [16 16]}
+   :down-2 {:pos [16 32] :size [16 16]}
+   :down-3 {:pos [32 32] :size [16 16]}
+   :down-4 {:pos [48 32] :size [16 16]}
+
+   :up-action {:pos [0 48] :size [16 16]}
+   :right-action {:pos [16 48] :size [16 16]}
+   :down-action {:pos [32 48] :size [16 16]}})
+
 (defonce canvas
   (c/init {:layers [:bg :tilemap :ui]
            :background bg-colour
@@ -108,7 +128,8 @@
 (defonce main
   (go
     ;; load resource url with tile sheet
-    (<! (r/load-resources canvas :ui ["img/tiles.png"]))
+    (<! (r/load-resources canvas :ui ["img/tiles.png"
+                                      "img/notlink.png"]))
 
     (let [tile-set (tm/make-tile-set :tiles tile-set-mapping [16 16])
           tile-sprites (->> tile-map-chars
