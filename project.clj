@@ -11,6 +11,8 @@
                  [org.clojure/core.async "0.2.391"
                   :exclusions [org.clojure/tools.reader]]
 
+                 [org.clojure/core.match "0.3.0-alpha4"]
+
                  [infinitelives/infinitelives.pixi "0.1.1-SNAPSHOT"]
                  ]
 
