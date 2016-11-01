@@ -15,6 +15,8 @@
 
 (defonce bg-colour 0x0D0711)
 
+(def scale 2)
+
 (def tile-map-chars
   [
    " ┌──────╖          "
@@ -145,9 +147,9 @@
                             )]
       (m/with-sprite :tilemap
         [tile-map (tm/make-tilemap tile-sprites
-                                   :scale 1
+                                   :scale scale
                                    :particle-opts #{:uvs})
-         player (s/make-sprite :down-1 :scale 1 :x -100 :y -100)]
+         player (s/make-sprite :down-1 :scale scale :x -100 :y -100)]
 
         ;; door opens and closes
         (go
@@ -184,20 +186,20 @@
             (case (vec2/get-x joy)
               -1
               (do (s/set-texture! player :right-1)
-                  (s/set-scale! player -1 1))
+                  (s/set-scale! player (- scale) scale))
               1
               (do (s/set-texture! player :right-1)
-                  (s/set-scale! player 1 1))
+                  (s/set-scale! player scale scale))
                nil
               )
 
             (case (vec2/get-y joy)
               -1
               (do (s/set-texture! player :up-1)
-                  (s/set-scale! player 2))
+                  (s/set-scale! player scale))
               1
               (do (s/set-texture! player :down-1)
-                  (s/set-scale! player 2))
+                  (s/set-scale! player scale))
                nil
               )
 
