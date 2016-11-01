@@ -7,7 +7,9 @@
              [infinitelives.utils.events :as e]
              [infinitelives.utils.vec2 :as vec2]
              [infinitelives.utils.gamepad :as gp]
-             [infinitelives.utils.console :refer [log]])
+             [infinitelives.utils.console :refer [log]]
+
+             [dungeon-crawler.line :as line])
   (:require-macros [cljs.core.async.macros :refer [go]]
                    [infinitelives.pixi.macros :as m]))
 
@@ -141,10 +143,9 @@
      hero)
 
     (let [tile-set (tm/make-tile-set :tiles tile-set-mapping [16 16])
-          tile-sprites (->> tile-map-chars
-                            (tm/make-tile-map key-for)
-                            (tm/make-tile-sprites tile-set)
-                            )]
+          level-map (->> tile-map-chars
+                            (tm/make-tile-map key-for))
+          tile-sprites (tm/make-tile-sprites tile-set level-map)]
       (m/with-sprite :tilemap
         [tile-map (tm/make-tilemap tile-sprites
                                    :scale scale
@@ -180,6 +181,8 @@
                                          (e/is-pressed? :down) 1
                                          :default 0)
                                    ))
+
+                new-pos (vec2/add pos vel)
                 ]
             (s/set-pos! player pos)
 
@@ -204,11 +207,24 @@
               )
 
 
+
             (<! (e/next-frame))
-            (recur (vec2/add pos vel)
-                   (-> vel
-                       (vec2/add joy)
-                       (vec2/scale 0.90)
-                       (vec2/truncate 3)))))
+            (recur
+             (line/constrain
+              {:passable? (fn [x y]
+                            (let [x (int (/ (+ 260 x) 32))
+                                  y (int (/ (+ 225 y) 32))]
+                              ;(log x y (get-in level-map [y x]))
+                              (#{:floor :floor-2 :floor-3 :floor-4}
+                               (get-in level-map [y x]))))
+               :h-edge 0.1
+               :v-edge 0.1
+               :minus-h-edge 0.9
+               :minus-v-edge 0.9}
+              new-pos pos)
+             (-> vel
+                 (vec2/add joy)
+                 (vec2/scale 0.90)
+                 (vec2/truncate 3)))))
 
         ))))
