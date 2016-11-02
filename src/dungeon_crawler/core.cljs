@@ -17,7 +17,7 @@
 
 (defonce bg-colour 0x0D0711)
 
-(def scale 2)
+(def scale 1)
 
 (def tile-map-chars
   [
@@ -144,13 +144,18 @@
 
     (let [tile-set (tm/make-tile-set :tiles tile-set-mapping [16 16])
           level-map (->> tile-map-chars
-                            (tm/make-tile-map key-for))
-          tile-sprites (tm/make-tile-sprites tile-set level-map)]
+                         (tm/make-tile-map key-for))
+          tile-sprites (tm/make-tile-sprites tile-set level-map)
+          tile-map (tm/make-tilemap tile-sprites
+                                    :scale scale
+                                    :particle-opts #{:uvs}
+                                    :xhandle 0 :yhandle 0)
+          player (s/make-sprite :down-1 :scale scale :x 0 :y 0 :xhandle 0 :yhandle 0)
+          ]
       (m/with-sprite :tilemap
-        [tile-map (tm/make-tilemap tile-sprites
-                                   :scale scale
-                                   :particle-opts #{:uvs})
-         player (s/make-sprite :down-1 :scale scale :x -100 :y -100)]
+        [
+         container (s/make-container :children [tile-map player] :scale 2)
+         ]
 
         ;; door opens and closes
         (go
@@ -193,7 +198,7 @@
               1
               (do (s/set-texture! player :right-1)
                   (s/set-scale! player scale scale))
-               nil
+              nil
               )
 
             (case (vec2/get-y joy)
@@ -203,7 +208,7 @@
               1
               (do (s/set-texture! player :down-1)
                   (s/set-scale! player scale))
-               nil
+              nil
               )
 
 
@@ -214,7 +219,7 @@
               {:passable? (fn [x y]
                             (let [x (int (/ (+ 260 x) 32))
                                   y (int (/ (+ 225 y) 32))]
-                              ;(log x y (get-in level-map [y x]))
+                                        ;(log x y (get-in level-map [y x]))
                               (#{:floor :floor-2 :floor-3 :floor-4}
                                (get-in level-map [y x]))))
                :h-edge 0.1
@@ -225,6 +230,6 @@
              (-> vel
                  (vec2/add joy)
                  (vec2/scale 0.90)
-                 (vec2/truncate 3)))))
+                 (vec2/truncate 1)))))
 
         ))))
