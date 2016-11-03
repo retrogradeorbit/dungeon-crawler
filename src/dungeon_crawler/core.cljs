@@ -150,12 +150,14 @@
                                     :scale scale
                                     :particle-opts #{:uvs}
                                     :xhandle 0 :yhandle 0)
-          player (s/make-sprite :down-1 :scale scale :x 0 :y 0 :xhandle 0 :yhandle 0)
+          player (s/make-sprite :down-1 :scale scale :x 100 :y 100)
           ]
       (m/with-sprite :tilemap
         [
          container (s/make-container :children [tile-map player] :scale 2)
          ]
+
+
 
         ;; door opens and closes
         (go
@@ -174,7 +176,12 @@
             (tm/alter-tile! tile-sprites [0 3] tile-set :door-left-3)
             (tm/alter-tile! tile-sprites [1 3] tile-set :door-left-4)))
 
-        (loop [pos (vec2/vec2 -100 -100)
+        (loop []
+          (<! (e/next-frame))
+          (recur)
+          )
+
+        #_ (loop [pos (vec2/vec2 0 0)
                vel (vec2/zero)]
           (let [
                 joy (vec2/vec2 (or (gp/axis 0)
