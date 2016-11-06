@@ -148,16 +148,19 @@
           tile-sprites (tm/make-tile-sprites tile-set level-map)
           tile-map (tm/make-tilemap tile-sprites
                                     :scale scale
-                                    :particle-opts #{:uvs}
-                                    :xhandle 0 :yhandle 0)
-          player (s/make-sprite :down-1 :scale scale :x 100 :y 100)
+                                    :xhandle 0 :yhandle 0
+                                    :particle-opts #{:uvs})
+          player (s/make-sprite :down-1
+                                :scale scale
+                                :x 0 :y 0)
           ]
       (m/with-sprite :tilemap
         [
-         container (s/make-container :children [tile-map player] :scale 2)
+                                        ;tile-map-sprite tile-map
+                                        ;player-sprite player
+         container (s/make-container :children [tile-map player]
+                                     :scale 3)
          ]
-
-
 
         ;; door opens and closes
         (go
@@ -176,12 +179,7 @@
             (tm/alter-tile! tile-sprites [0 3] tile-set :door-left-3)
             (tm/alter-tile! tile-sprites [1 3] tile-set :door-left-4)))
 
-        (loop []
-          (<! (e/next-frame))
-          (recur)
-          )
-
-        #_ (loop [pos (vec2/vec2 0 0)
+        (loop [pos (vec2/vec2 50 50)
                vel (vec2/zero)]
           (let [
                 joy (vec2/vec2 (or (gp/axis 0)
@@ -195,8 +193,23 @@
                                    ))
 
                 new-pos (vec2/add pos vel)
-                ]
-            (s/set-pos! player pos)
+
+                _ (log pos "->" new-pos)
+
+                new-pos (line/constrain
+                         {:passable? (fn [x y]
+                                       (let [x (/ x 16)
+                                             y (/ y 16)]
+                                        ;(log x y (get-in level-map [y x]))
+                                         (#{:floor :floor-2 :floor-3 :floor-4}
+                                          (get-in level-map [y x]))))
+                          :h-edge 0.3
+                          :v-edge 0.3
+                          :minus-h-edge 0.7
+                          :minus-v-edge 0.7}
+                         new-pos pos)]
+            (log "new pos is now:" new-pos)
+            (s/set-pos! player new-pos)
 
             (case (vec2/get-x joy)
               -1
@@ -221,19 +234,7 @@
 
 
             (<! (e/next-frame))
-            (recur
-             (line/constrain
-              {:passable? (fn [x y]
-                            (let [x (int (/ (+ 260 x) 32))
-                                  y (int (/ (+ 225 y) 32))]
-                                        ;(log x y (get-in level-map [y x]))
-                              (#{:floor :floor-2 :floor-3 :floor-4}
-                               (get-in level-map [y x]))))
-               :h-edge 0.1
-               :v-edge 0.1
-               :minus-h-edge 0.9
-               :minus-v-edge 0.9}
-              new-pos pos)
+            (recur new-pos
              (-> vel
                  (vec2/add joy)
                  (vec2/scale 0.90)
