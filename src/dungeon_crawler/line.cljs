@@ -329,12 +329,12 @@
   [x0 y0 x1 y1 x y x-fn y-fn]
   (let [top-x (intersect-x x0 y0 x1 y1 (y-fn y))
         left-y (intersect-y x0 y0 x1 y1 (x-fn x))]
-    (cond (< x top-x (inc x))
+    (cond (<= x top-x (inc x))
           ;; cuts top
           (vec2/vec2 top-x (y-fn y))
 
           ;; cuts left
-          (< y left-y (inc y))
+          (<= y left-y (inc y))
           (vec2/vec2 (x-fn x) left-y))))
 
 (defn intersect-compass-y
@@ -344,14 +344,14 @@
   straight, vertical stack"
   [x0 y0 x1 y1 x y y-fn]
   (let [bottom-x (intersect-x x0 y0 x1 y1 (y-fn y))]
-      (when (< x bottom-x (inc x))
-        (vec2/vec2 bottom-x (y-fn y)))))
+    (when (<= x bottom-x (inc x))
+      (vec2/vec2 bottom-x (y-fn y)))))
 
 (defn intersect-compass-x
   "Same as intersect-compass-y but in a horizontal direction"
   [x0 y0 x1 y1 x y x-fn]
   (let [right-y (intersect-y x0 y0 x1 y1 (x-fn x))]
-    (when (< y right-y (inc y))
+    (when (<= y right-y (inc y))
       (vec2/vec2 (x-fn x) right-y))))
 
 (defn intersect
