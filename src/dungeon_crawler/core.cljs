@@ -192,9 +192,12 @@
                                          :default 0)
                                    ))
 
-                new-pos (vec2/add pos vel)
+                new-vel (-> vel
+                            (vec2/add joy)
+                            (vec2/scale 0.95)
+                            (vec2/truncate 1))
 
-                _ (log pos "->" new-pos)
+                new-pos (vec2/add pos new-vel)
 
                 new-pos (line/constrain
                          {:passable? (fn [x y]
@@ -207,8 +210,9 @@
                           :v-edge 0.3
                           :minus-h-edge 0.7
                           :minus-v-edge 0.7}
-                         new-pos pos)]
-            (log "new pos is now:" new-pos)
+                         new-pos pos)
+                new-vel (vec2/sub new-pos pos)
+                ]
             (s/set-pos! player new-pos)
 
             (case (vec2/get-x joy)
@@ -218,8 +222,7 @@
               1
               (do (s/set-texture! player :right-1)
                   (s/set-scale! player scale scale))
-              nil
-              )
+              nil)
 
             (case (vec2/get-y joy)
               -1
@@ -228,16 +231,7 @@
               1
               (do (s/set-texture! player :down-1)
                   (s/set-scale! player scale))
-              nil
-              )
-
-
+              nil?)
 
             (<! (e/next-frame))
-            (recur new-pos
-             (-> vel
-                 (vec2/add joy)
-                 (vec2/scale 0.90)
-                 (vec2/truncate 1)))))
-
-        ))))
+            (recur new-pos new-vel)))))))
