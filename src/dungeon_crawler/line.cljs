@@ -386,34 +386,36 @@
 
 (defn constrain [{:keys [passable?]
                   :as opts} newpos oldpos]
-  (let [[nx ny nix niy nfx nfy] (vec2->parts newpos)
-        [ox oy oix oiy ofx ofy] (vec2->parts oldpos)
-        dx (- nix oix)
-        dy (- niy oiy)]
-    (if (and (> 2 (Math/abs dx))
-             (> 2 (Math/abs dy))
-             (> 2 (+ (Math/abs dx) (Math/abs dy))) ;; cant jump through diagonals
-             (passable? nix niy))
-      ;; small +/- 1 tile horiz/vert movements
-      ;; in an open square. apply edge contsraints
-      (apply-edge-constraints
-       opts
-       oldpos newpos)
+  (if (vec2/almost newpos oldpos)
+    newpos
+    (let [[nx ny nix niy nfx nfy] (vec2->parts newpos)
+          [ox oy oix oiy ofx ofy] (vec2->parts oldpos)
+          dx (- nix oix)
+          dy (- niy oiy)]
+      (if (and (> 2 (Math/abs dx))
+               (> 2 (Math/abs dy))
+               (> 2 (+ (Math/abs dx) (Math/abs dy))) ;; cant jump through diagonals
+               (passable? nix niy))
+        ;; small +/- 1 tile horiz/vert movements
+        ;; in an open square. apply edge contsraints
+        (apply-edge-constraints
+         opts
+         oldpos newpos)
 
-      ;; new tile collides. moving so fast got embedded in other tile.
-      ;; eject drastically!
-      (let [points (all-covered ox oy nx ny)]
-        (loop [[[x y] & r] points]
-          (if (passable? x y)
-            (if (zero? (count r))
-              ;; no colision found
-              newpos
+        ;; new tile collides. moving so fast got embedded in other tile.
+        ;; eject drastically!
+        (let [points (all-covered ox oy nx ny)]
+          (loop [[[x y] & r] points]
+            (if (passable? x y)
+              (if (zero? (count r))
+                ;; no colision found
+                newpos
 
-              ;; try next point
-              (recur r))
+                ;; try next point
+                (recur r))
 
-            ;; not passable! reject from this tile
-            (apply-edge-constraints opts oldpos (reject oldpos newpos x y))))))))
+              ;; not passable! reject from this tile
+              (apply-edge-constraints opts oldpos (reject oldpos newpos x y)))))))))
 
 (defn constrain-offset [opts offset newpos oldpos]
   (vec2/add
