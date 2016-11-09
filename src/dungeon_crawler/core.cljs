@@ -192,27 +192,28 @@
                                          :default 0)
                                    ))
 
-                new-vel (-> vel
+                new-vel-a (-> vel
                             (vec2/add joy)
                             (vec2/scale 0.95)
                             (vec2/truncate 1))
 
-                new-pos (vec2/add pos new-vel)
+                new-pos-a (vec2/add pos new-vel-a)
 
-                new-pos (line/constrain
-                         {:passable? (fn [x y]
-                                       (let [x (/ x 16)
-                                             y (/ y 16)]
-                                        ;(log x y (get-in level-map [y x]))
-                                         (#{:floor :floor-2 :floor-3 :floor-4}
-                                          (get-in level-map [y x]))))
-                          :h-edge 0.3
-                          :v-edge 0.3
-                          :minus-h-edge 0.7
-                          :minus-v-edge 0.7}
-                         new-pos pos)
+                new-pos (vec2/scale (line/constrain
+                                     {:passable? (fn [x y]
+                                                   (#{:floor :floor-2 :floor-3 :floor-4}
+                                                    (get-in level-map [y x])))
+                                      :h-edge 0.01
+                                      :v-edge 0.01
+                                      :minus-h-edge 0.99
+                                      :minus-v-edge 0.7}
+                                     (vec2/scale pos (/ 1 16))
+                                     (vec2/scale new-pos-a (/ 1 16)))
+                                    16)
                 new-vel (vec2/sub new-pos pos)
                 ]
+            ;(log "->" new-pos-a new-pos new-vel-a new-vel)
+
             (s/set-pos! player new-pos)
 
             (case (vec2/get-x joy)
