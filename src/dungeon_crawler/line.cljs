@@ -385,7 +385,7 @@
 
 
 (defn constrain [{:keys [passable?]
-                  :as opts} newpos oldpos]
+                  :as opts} oldpos newpos]
   (if (vec2/almost newpos oldpos)
     newpos
     (let [[nx ny nix niy nfx nfy] (vec2->parts newpos)
@@ -397,7 +397,7 @@
                (> 2 (+ (Math/abs dx) (Math/abs dy))) ;; cant jump through diagonals
                (passable? nix niy))
         ;; small +/- 1 tile horiz/vert movements
-        ;; in an open square. apply edge contsraints
+        ;; in an open square. apply edge constraints
         (apply-edge-constraints
          opts
          oldpos newpos)
@@ -417,7 +417,7 @@
               ;; not passable! reject from this tile
               (apply-edge-constraints opts oldpos (reject oldpos newpos x y)))))))))
 
-(defn constrain-offset [opts offset newpos oldpos]
+(defn constrain-offset [opts offset oldpos newpos]
   (vec2/add
    offset
-   (constrain opts (vec2/sub newpos offset) (vec2/sub oldpos offset))))
+   (constrain opts (vec2/sub oldpos offset) (vec2/sub newpos offset))))
