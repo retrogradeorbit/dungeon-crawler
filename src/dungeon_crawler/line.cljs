@@ -203,15 +203,15 @@
         <top-edge (< nfy v-edge)
         >bottom-edge (> nfy minus-v-edge)
 
-        pass? (passable? nix niy)
-        pass-left? (passable? (dec nix) niy)
-        pass-right? (passable? (inc nix) niy)
-        pass-top? (passable? nix (dec niy))
-        pass-bottom? (passable? nix (inc niy))
-        pass-top-left? (passable? (dec nix) (dec niy))
-        pass-bottom-left? (passable? (dec nix) (inc niy))
-        pass-top-right? (passable? (inc nix) (dec niy))
-        pass-bottom-right? (passable? (inc nix) (inc niy))]
+        pass? (boolean (passable? nix niy))
+        pass-left? (boolean (passable? (dec nix) niy))
+        pass-right? (boolean (passable? (inc nix) niy))
+        pass-top? (boolean (passable? nix (dec niy)))
+        pass-bottom? (boolean (passable? nix (inc niy)))
+        pass-top-left? (boolean (passable? (dec nix) (dec niy)))
+        pass-bottom-left? (boolean (passable? (dec nix) (inc niy)))
+        pass-top-right? (boolean (passable? (inc nix) (dec niy)))
+        pass-bottom-right? (boolean (passable? (inc nix) (inc niy)))]
     (match [<left-edge >right-edge <top-edge >bottom-edge
             pass-top-left? pass-top? pass-top-right?
             pass-left? pass? pass-right?
