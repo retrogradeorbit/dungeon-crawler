@@ -193,9 +193,10 @@
                                    ))
 
                 new-vel-a (-> vel
-                            (vec2/add joy)
+                              (vec2/add (vec2/scale joy .3))
                             (vec2/scale 0.95)
-                            (vec2/truncate 1))
+                            (vec2/truncate 2))
+
 
                 new-pos-a (vec2/add pos new-vel-a)
 
