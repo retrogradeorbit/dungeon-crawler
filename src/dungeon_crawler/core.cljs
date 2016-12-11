@@ -7,6 +7,7 @@
              [infinitelives.utils.events :as e]
              [infinitelives.utils.vec2 :as vec2]
              [infinitelives.utils.gamepad :as gp]
+             [infinitelives.utils.pathfind :as path]
              [infinitelives.utils.console :refer [log]]
 
              [dungeon-crawler.line :as line])
@@ -149,6 +150,9 @@
           tile-map (tm/make-tilemap tile-sprites
                                     :scale scale
                                     :xhandle 0 :yhandle 0
+                                    :mousedown (fn [ev]
+                                                 (.log js/console "mousedown")
+                                                 (.log js/console (.-data ev)))
                                     :particle-opts #{:uvs})
           player (s/make-sprite :down-1
                                 :scale scale
@@ -178,6 +182,8 @@
             (tm/alter-tile! tile-sprites [1 2] tile-set :door-left-2)
             (tm/alter-tile! tile-sprites [0 3] tile-set :door-left-3)
             (tm/alter-tile! tile-sprites [1 3] tile-set :door-left-4)))
+
+        (log "path" (str (path/A* (constantly true) [0 0] [5 1])))
 
         (loop [pos (vec2/vec2 50 50)
                vel (vec2/zero)]
