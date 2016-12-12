@@ -158,12 +158,27 @@
                                 :scale scale
                                 :x 0 :y 0)
           ]
+      (set! (.-hitArea tile-map) (new js/PIXI.Rectangle 0 0 1000 1000))
+      (set! (.-interactive tile-map) true)
+      (set! (.-mousedown tile-map) (fn [&_] (.log js/console "!")))
       (m/with-sprite :tilemap
         [
                                         ;tile-map-sprite tile-map
                                         ;player-sprite player
-         container (s/make-container :children [tile-map player]
-                                     :scale 3)
+         container (s/make-container
+                    :children [tile-map player]
+                    :mousedown (fn [ev]
+                                 (.log js/console "parent")
+                                 (.log js/console (.-data.global ev))
+
+                                 (.log js/console
+                                       (let [point (.applyInverse (.-worldTransform tile-map)
+                                                                  (.-data.global ev))
+                                             x (int (/ (.-x point) 16))
+                                             y (int (/ (.-y point) 16))]
+                                         [x y]
+                                         )))
+                    :scale 3)
          ]
 
         ;; door opens and closes
