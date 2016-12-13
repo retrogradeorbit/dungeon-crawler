@@ -172,8 +172,7 @@
                                  (.log js/console (.-data.global ev))
 
                                  (.log js/console
-                                       (let [point (.applyInverse (.-worldTransform tile-map)
-                                                                  (.-data.global ev))
+                                       (let [point (s/container-transform tile-map (.-data.global ev))
                                              x (int (/ (.-x point) 16))
                                              y (int (/ (.-y point) 16))]
                                          [x y]
