@@ -10,6 +10,8 @@
              [infinitelives.utils.pathfind :as path]
              [infinitelives.utils.console :refer [log]]
 
+             [cljs.core.async :refer [chan put!]]
+
              [dungeon-crawler.line :as line])
   (:require-macros [cljs.core.async.macros :refer [go]]
                    [infinitelives.pixi.macros :as m]))
@@ -150,17 +152,18 @@
           tile-map (tm/make-tilemap tile-sprites
                                     :scale scale
                                     :xhandle 0 :yhandle 0
-                                    :mousedown (fn [ev]
-                                                 (.log js/console "mousedown")
-                                                 (.log js/console (.-data ev)))
                                     :particle-opts #{:uvs})
           player (s/make-sprite :down-1
                                 :scale scale
                                 :x 0 :y 0)
+          walk-to-chan (chan)
           ]
       (set! (.-hitArea tile-map) (new js/PIXI.Rectangle 0 0 1000 1000))
       (set! (.-interactive tile-map) true)
-      (set! (.-mousedown tile-map) (fn [&_] (.log js/console "!")))
+      (set! (.-mousedown tile-map) (fn [ev] (put! walk-to-chan (let [[x y] (s/container-transform tile-map (.-data.global ev))
+                                             x (int (/ x 16))
+                                             y (int (/ y 16))]
+                                         [x y]) )))
       (m/with-sprite :tilemap
         [
                                         ;tile-map-sprite tile-map
@@ -168,15 +171,11 @@
          container (s/make-container
                     :children [tile-map player]
                     :mousedown (fn [ev]
-                                 (.log js/console "parent")
-                                 (.log js/console (.-data.global ev))
-
-                                 (.log js/console
+                                 (put! walk-to-chan
                                        (let [[x y] (s/container-transform tile-map (.-data.global ev))
                                              x (int (/ x 16))
                                              y (int (/ y 16))]
-                                         [x y]
-                                         )))
+                                         [x y])))
                     :scale 3)
          ]
 
@@ -196,6 +195,12 @@
             (tm/alter-tile! tile-sprites [1 2] tile-set :door-left-2)
             (tm/alter-tile! tile-sprites [0 3] tile-set :door-left-3)
             (tm/alter-tile! tile-sprites [1 3] tile-set :door-left-4)))
+
+        ;; walk to input
+        (go
+          (while true
+            (.log js/console
+                  (<! walk-to-chan))))
 
         (log "path" (str (path/A* (constantly true) [0 0] [5 1])))
 
@@ -233,7 +238,7 @@
                                     16)
                 new-vel (vec2/sub new-pos pos)
                 ]
-            ;(log "->" new-pos-a new-pos new-vel-a new-vel)
+                                        ;(log "->" new-pos-a new-pos new-vel-a new-vel)
 
             (s/set-pos! player new-pos)
 
