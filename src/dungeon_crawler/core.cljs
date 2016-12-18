@@ -161,9 +161,9 @@
       (set! (.-hitArea tile-map) (new js/PIXI.Rectangle 0 0 1000 1000))
       (set! (.-interactive tile-map) true)
       (set! (.-mousedown tile-map) (fn [ev] (put! walk-to-chan (let [[x y] (s/container-transform tile-map (.-data.global ev))
-                                             x (int (/ x 16))
-                                             y (int (/ y 16))]
-                                         [x y]) )))
+                                                                     x (int (/ x 16))
+                                                                     y (int (/ y 16))]
+                                                                 [x y]) )))
       (m/with-sprite :tilemap
         [
                                         ;tile-map-sprite tile-map
@@ -199,8 +199,11 @@
         ;; walk to input
         (go
           (while true
-            (.log js/console
-                  (<! walk-to-chan))))
+            (let [passable? (fn [x y]
+                              (#{:floor :floor-2 :floor-3 :floor-4}
+                               (get-in level-map [y x])))]
+              (.log js/console
+                    (path/A* passable? [0 0] (<! walk-to-chan))))))
 
         (log "path" (str (path/A* (constantly true) [0 0] [5 1])))
 
