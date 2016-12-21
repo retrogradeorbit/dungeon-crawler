@@ -205,11 +205,9 @@
 
 
                   #_ (constantly true)
-                  (fn [x y] (js/console.log (str [x y])
-                                            (get-in level-map [y x])
-                             (not (boolean (#{:floor :floor-2 :floor-3 :floor-4}
-                                            (get-in level-map [y x])))))
-                    true)
+                  (fn [[x y]]
+                    (boolean (#{:floor :floor-2 :floor-3 :floor-4}
+                              (get-in level-map [y x]))))
                   [x y] (vec2/as-vector
                          (vec2/scale (:pos @state) (/ 1 16)))
                   ]
