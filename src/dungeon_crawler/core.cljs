@@ -136,6 +136,8 @@
            :background bg-colour
            :expand true}))
 
+(defonce state (atom {:pos (vec2/zero)}))
+
 (defonce main
   (go
     ;; load resource url with tile sheet
@@ -199,11 +201,23 @@
         ;; walk to input
         (go
           (while true
-            (let [passable? (fn [x y]
-                              (#{:floor :floor-2 :floor-3 :floor-4}
-                               (get-in level-map [y x])))]
-              (.log js/console
-                    (path/A* passable? [0 0] (<! walk-to-chan))))))
+            (let [passable?
+
+
+                  #_ (constantly true)
+                  (fn [x y] (js/console.log (str [x y])
+                                            (get-in level-map [y x])
+                             (not (boolean (#{:floor :floor-2 :floor-3 :floor-4}
+                                            (get-in level-map [y x])))))
+                    true)
+                  [x y] (vec2/as-vector
+                         (vec2/scale (:pos @state) (/ 1 16)))
+                  ]
+              (.log js/console "!"
+                    (str (path/A* passable? [(int x) (int y)]
+                                  (<! walk-to-chan)))))))
+
+
 
         (log "path" (str (path/A* (constantly true) [0 0] [5 1])))
 
@@ -243,6 +257,7 @@
                 ]
                                         ;(log "->" new-pos-a new-pos new-vel-a new-vel)
 
+            (swap! state assoc :pos new-pos)
             (s/set-pos! player new-pos)
 
             (case (vec2/get-x joy)
