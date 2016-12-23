@@ -136,7 +136,8 @@
            :background bg-colour
            :expand true}))
 
-(defonce state (atom {:pos (vec2/zero)}))
+(defonce state (atom {:pos (vec2/zero)
+                      :walk-to nil}))
 
 (defonce main
   (go
@@ -162,7 +163,8 @@
           ]
       (set! (.-hitArea tile-map) (new js/PIXI.Rectangle 0 0 1000 1000))
       (set! (.-interactive tile-map) true)
-      (set! (.-mousedown tile-map) (fn [ev] (put! walk-to-chan (let [[x y] (s/container-transform tile-map (.-data.global ev))
+
+      #_ (set! (.-mousedown tile-map) (fn [ev] (put! walk-to-chan (let [[x y] (s/container-transform tile-map (.-data.global ev))
                                                                      x (int (/ x 16))
                                                                      y (int (/ y 16))]
                                                                  [x y]) )))
@@ -202,18 +204,21 @@
         (go
           (while true
             (let [passable?
-
-
-                  #_ (constantly true)
                   (fn [[x y]]
                     (boolean (#{:floor :floor-2 :floor-3 :floor-4}
                               (get-in level-map [y x]))))
-                  [x y] (vec2/as-vector
-                         (vec2/scale (:pos @state) (/ 1 16)))
+
+                  dest (<! walk-to-chan)
+
+                  [xp yp] (vec2/as-vector
+                           (vec2/scale (:pos @state) (/ 1 16)))
+
+                  walk-to (second (path/A* passable? [(int xp) (int yp)]
+                                          dest))
                   ]
-              (.log js/console "!"
-                    (str (path/A* passable? [(int x) (int y)]
-                                  (<! walk-to-chan)))))))
+              (.log js/console "walk-to" (str walk-to))
+              (swap! state assoc :walk-to walk-to)
+              )))
 
 
 
