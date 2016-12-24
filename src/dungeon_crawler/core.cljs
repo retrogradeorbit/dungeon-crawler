@@ -215,9 +215,11 @@
 
                   path (path/A* passable? [(int xp) (int yp)]
                                           dest)
-                  walk-to (nth path 2)
+                  walk-to (second path)
                   ]
-              (.log js/console "walk-to" (str walk-to) (str path))
+              (.log js/console "from" [(int xp) (int yp)]
+                    "to" dest
+                    "walk-to" (str walk-to) (str path))
               (swap! state assoc :walk-to walk-to)
               )))
 
