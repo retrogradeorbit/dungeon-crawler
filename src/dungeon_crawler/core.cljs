@@ -213,10 +213,11 @@
                   [xp yp] (vec2/as-vector
                            (vec2/scale (:pos @state) (/ 1 16)))
 
-                  walk-to (second (path/A* passable? [(int xp) (int yp)]
-                                          dest))
+                  path (path/A* passable? [(int xp) (int yp)]
+                                          dest)
+                  walk-to (nth path 2)
                   ]
-              (.log js/console "walk-to" (str walk-to))
+              (.log js/console "walk-to" (str walk-to) (str path))
               (swap! state assoc :walk-to walk-to)
               )))
 
@@ -237,10 +238,20 @@
                                          :default 0)
                                    ))
 
+                walk-to (:walk-to @state)
+                [wtx wty] walk-to
+                walk-to-delta (vec2/sub
+                               (vec2/vec2 (* 16 (+ 0.5 wtx))
+                                          (* 16 (+ 0.5 wty)))
+                               pos)
+
                 new-vel-a (-> vel
                               (vec2/add (vec2/scale joy .3))
+                              (vec2/add (vec2/scale walk-to-delta 0.1))
                               (vec2/scale 0.95)
                               (vec2/truncate 2))
+
+
 
 
                 new-pos-a (vec2/add pos new-vel-a)
