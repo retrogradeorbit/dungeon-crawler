@@ -288,28 +288,19 @@
             (swap! state assoc :pos new-pos)
             (s/set-pos! player new-pos)
 
-            (js/console.log
-             "d-o"
-             (str (vec2/direction-quad new-vel)))
-
-            (match [(Math/sign (vec2/get-x new-vel))
-                    (Math/sign (vec2/get-y new-vel))]
-                   [-1 _]
-                   (do (s/set-texture! player :right-1)
-                       (s/set-scale! player (- scale) scale))
-                   [1 _]
-                   (do (s/set-texture! player :right-1)
-                       (s/set-scale! player scale scale))
-
-                   [_ -1]
-                   (do (s/set-texture! player :up-1)
-                       (s/set-scale! player scale))
-
-                   [_ 1]
-                   (do (s/set-texture! player :down-1)
-                       (s/set-scale! player scale))
-
-                   [_ _] nil)
+            (case (vec2/direction-quad new-vel)
+              :left
+              (do (s/set-texture! player :right-1)
+                  (s/set-scale! player (- scale) scale))
+              :right
+              (do (s/set-texture! player :right-1)
+                  (s/set-scale! player scale scale))
+              :up
+              (do (s/set-texture! player :up-1)
+                  (s/set-scale! player scale))
+              :down
+              (do (s/set-texture! player :down-1)
+                  (s/set-scale! player scale)))
 
             (<! (e/next-frame))
             (recur new-pos new-vel)))))))
