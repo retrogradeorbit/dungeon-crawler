@@ -218,20 +218,20 @@
 
                   path (path/A* passable? [(int xp) (int yp)]
                                 dest)
-                  walk-to (second path)
                   ]
-              ;; play out the path into walk-to state
-              ;; from start destination to last
-              (loop [[n & r] path]
-                (swap! state assoc :walk-to n)
-                (while
-                    (let [[xd yd] (int-vec n)
-                          [xp yp] (int-vec (vec2/as-vector
-                                            (vec2/scale (:pos @state) (/ 1 16))))]
-                      (or (not= xp xd) (not= yp yd)))
-                  (<! (e/next-frame)))
-                (when (seq r) (recur r)))
-              (swap! state assoc :walk-to nil))))
+              (when path
+                ;; play out the path into walk-to state
+                ;; from start destination to last
+                (loop [[n & r] path]
+                  (swap! state assoc :walk-to n)
+                  (while
+                      (let [[xd yd] (int-vec n)
+                            [xp yp] (int-vec (vec2/as-vector
+                                              (vec2/scale (:pos @state) (/ 1 16))))]
+                        (or (not= xp xd) (not= yp yd)))
+                    (<! (e/next-frame)))
+                  (when (seq r) (recur r)))
+                (swap! state assoc :walk-to nil)))))
 
 
 
