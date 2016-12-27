@@ -233,10 +233,6 @@
                   (when (seq r) (recur r)))
                 (swap! state assoc :walk-to nil)))))
 
-
-
-        (log "path" (str (path/A* (constantly true) [0 0] [5 1])))
-
         (loop [pos (vec2/vec2 50 50)
                vel (vec2/zero)]
           (let [
