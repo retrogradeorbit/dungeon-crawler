@@ -46,6 +46,16 @@
    "    AB,.....o..║   "
    "     ╘═════════╝   "])
 
+(def room2-map-chars
+  [
+   "         -=         "
+   "┌────────{}────────╖"
+   "│.o.o.o.o.o.o.o.o.o║"
+   "│o.o.o.o.o.o.o.o.o.║"
+   "╘()══════════════()╝"
+   " []              [] "
+   ])
+
 (def key-for
   {
    "┌" :wall-top-left
@@ -204,8 +214,20 @@
           tile-sprites (tm/make-tile-sprites tile-set level-map)
           tile-map (tm/make-tilemap tile-sprites
                                     :scale scale
+                                    ;:alpha 0.2
                                     :xhandle 0 :yhandle 0
                                     :particle-opts #{:uvs})
+          room2-map (->> room2-map-chars
+                         (tm/make-tile-map key-for))
+          room2-sprites (tm/make-tile-sprites tile-set room2-map)
+          room2-tile-map (tm/make-tilemap room2-sprites
+                                          :scale scale
+                                          :x (* 16 -10)
+                                          :y (* 16 4)
+                                          ;:alpha 1.0
+                                          :xhandle 0 :yhandle 0
+                                          :particle-opts #{:uvs})
+
           overlay-map (into [] (for [row level-map]
                                  (into []
                                        (for [c row]
