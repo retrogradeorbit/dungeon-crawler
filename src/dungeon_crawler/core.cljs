@@ -163,6 +163,12 @@
                                 :scale scale
                                 :x 0 :y 0)
           walk-to-chan (chan)
+          mousedown (fn [ev]
+                      (put! walk-to-chan
+                            (let [[x y] (s/container-transform tile-map (.-data.global ev))
+                                  x (int (/ x 16))
+                                  y (int (/ y 16))]
+                              [x y])))
           ]
       (set! (.-hitArea tile-map) (new js/PIXI.Rectangle 0 0 1000 1000))
       (set! (.-interactive tile-map) true)
@@ -177,12 +183,8 @@
                                         ;player-sprite player
          container (s/make-container
                     :children [tile-map player]
-                    :mousedown (fn [ev]
-                                 (put! walk-to-chan
-                                       (let [[x y] (s/container-transform tile-map (.-data.global ev))
-                                             x (int (/ x 16))
-                                             y (int (/ y 16))]
-                                         [x y])))
+                    :mousedown mousedown
+                    :touchdown mousedown
                     :scale 3)
          ]
 
