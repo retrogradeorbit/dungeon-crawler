@@ -11,6 +11,7 @@
              [infinitelives.utils.console :refer [log]]
 
              [cljs.core.async :refer [chan put!]]
+             [cljs.core.match :refer [match]]
 
              [dungeon-crawler.line :as line])
   (:require-macros [cljs.core.async.macros :refer [go]]
@@ -138,6 +139,8 @@
 
 (defonce state (atom {:pos (vec2/zero)
                       :walk-to nil}))
+(defn int-vec [v]
+  (mapv int v))
 
 (defonce main
   (go
@@ -165,9 +168,9 @@
       (set! (.-interactive tile-map) true)
 
       #_ (set! (.-mousedown tile-map) (fn [ev] (put! walk-to-chan (let [[x y] (s/container-transform tile-map (.-data.global ev))
-                                                                     x (int (/ x 16))
-                                                                     y (int (/ y 16))]
-                                                                 [x y]) )))
+                                                                        x (int (/ x 16))
+                                                                        y (int (/ y 16))]
+                                                                    [x y]) )))
       (m/with-sprite :tilemap
         [
                                         ;tile-map-sprite tile-map
@@ -214,14 +217,21 @@
                            (vec2/scale (:pos @state) (/ 1 16)))
 
                   path (path/A* passable? [(int xp) (int yp)]
-                                          dest)
+                                dest)
                   walk-to (second path)
                   ]
-              (.log js/console "from" [(int xp) (int yp)]
-                    "to" dest
-                    "walk-to" (str walk-to) (str path))
-              (swap! state assoc :walk-to walk-to)
-              )))
+              ;; play out the path into walk-to state
+              ;; from start destination to last
+              (loop [[n & r] path]
+                (swap! state assoc :walk-to n)
+                (while
+                    (let [[xd yd] (int-vec n)
+                          [xp yp] (int-vec (vec2/as-vector
+                                            (vec2/scale (:pos @state) (/ 1 16))))]
+                      (or (not= xp xd) (not= yp yd)))
+                  (<! (e/next-frame)))
+                (when (seq r) (recur r)))
+              (swap! state assoc :walk-to nil))))
 
 
 
@@ -242,10 +252,12 @@
 
                 walk-to (:walk-to @state)
                 [wtx wty] walk-to
-                walk-to-delta (vec2/sub
-                               (vec2/vec2 (* 16 (+ 0.5 wtx))
-                                          (* 16 (+ 0.5 wty)))
-                               pos)
+                walk-to-delta (if (nil? walk-to)
+                                (vec2/zero)
+                                (vec2/sub
+                                 (vec2/vec2 (* 16 (+ 0.5 wtx))
+                                            (* 16 (+ 0.5 wty)))
+                                 pos))
 
                 new-vel-a (-> vel
                               (vec2/add (vec2/scale joy .3))
@@ -276,23 +288,28 @@
             (swap! state assoc :pos new-pos)
             (s/set-pos! player new-pos)
 
-            (case (vec2/get-x joy)
-              -1
-              (do (s/set-texture! player :right-1)
-                  (s/set-scale! player (- scale) scale))
-              1
-              (do (s/set-texture! player :right-1)
-                  (s/set-scale! player scale scale))
-              nil)
+            (js/console.log
+             "d-o"
+             (str (vec2/direction-quad new-vel)))
 
-            (case (vec2/get-y joy)
-              -1
-              (do (s/set-texture! player :up-1)
-                  (s/set-scale! player scale))
-              1
-              (do (s/set-texture! player :down-1)
-                  (s/set-scale! player scale))
-              nil?)
+            (match [(Math/sign (vec2/get-x new-vel))
+                    (Math/sign (vec2/get-y new-vel))]
+                   [-1 _]
+                   (do (s/set-texture! player :right-1)
+                       (s/set-scale! player (- scale) scale))
+                   [1 _]
+                   (do (s/set-texture! player :right-1)
+                       (s/set-scale! player scale scale))
+
+                   [_ -1]
+                   (do (s/set-texture! player :up-1)
+                       (s/set-scale! player scale))
+
+                   [_ 1]
+                   (do (s/set-texture! player :down-1)
+                       (s/set-scale! player scale))
+
+                   [_ _] nil)
 
             (<! (e/next-frame))
             (recur new-pos new-vel)))))))
