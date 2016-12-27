@@ -19,6 +19,12 @@
 
 (enable-console-print!)
 
+(def passable-tile-set
+  #{:floor :floor-2 :floor-3 :floor-4
+    :door-bottom-1 :door-bottom-2
+    :door-left-2 :door-left-4
+    :door-bottom-left :door-bottom-right})
+
 (defonce bg-colour 0x0D0711)
 
 (def scale 1)
@@ -110,6 +116,28 @@
    :door-left-shut-2 [160 176]
    :door-left-shut-3 [144 192]
    :door-left-shut-4 [160 192]
+
+   :door-top-overlay-1 [288 0]
+   :door-top-overlay-2 [288 16]
+   :door-top-overlay-3 [304 0]
+   :door-top-overlay-4 [304 16]
+
+   :door-bottom-overlay-1 [288 32]
+   :door-bottom-overlay-2 [288 48]
+   :door-bottom-overlay-3 [304 32]
+   :door-bottom-overlay-4 [304 48]
+
+   :door-right-overlay-1 [288 64]
+   :door-right-overlay-2 [288 80]
+   :door-right-overlay-3 [304 64]
+   :door-right-overlay-4 [304 80]
+
+   :door-left-overlay-1 [288 96]
+   :door-left-overlay-2 [288 112]
+   :door-left-overlay-3 [304 96]
+   :door-left-overlay-4 [304 112]
+
+
 })
 
 (def hero
@@ -142,6 +170,25 @@
 (defn int-vec [v]
   (mapv int v))
 
+(defn door-horiz-constrain-passable? [x y]
+  (not
+   (or
+    (and (= x 1) (= y 7))
+    (and (= x 4) (= y 7))
+    (and (= x 11) (= y 3))
+    (and (= x 14) (= y 3))
+    (and (= x 6) (= y 9))
+    (and (= x 9) (= y 9)))))
+
+(defn door-vert-constrain-passable? [x y]
+  (not
+   (or
+    (and (= x 1) (= y 1))
+    (and (= x 1) (= y 4))
+    (and (= x 5) (= y 10))
+    (and (= x 5) (= y 13)))))
+
+
 (defonce main
   (go
     ;; load resource url with tile sheet
@@ -159,6 +206,36 @@
                                     :scale scale
                                     :xhandle 0 :yhandle 0
                                     :particle-opts #{:uvs})
+          overlay-map (into [] (for [row level-map]
+                                 (into []
+                                       (for [c row]
+                                         ({:door-top-left :door-top-overlay-1
+                                           :door-top-right :door-top-overlay-3
+                                           :door-bottom-left :door-top-overlay-2
+                                           :door-bottom-right :door-top-overlay-4
+                                           :door-bottom-1 :door-bottom-overlay-1
+                                           :door-bottom-2 :door-bottom-overlay-3
+                                           :door-bottom-3 :door-bottom-overlay-2
+                                           :door-bottom-4 :door-bottom-overlay-4
+                                           :door-left-1 :door-left-overlay-1
+                                           :door-left-2 :door-left-overlay-3
+                                           :door-left-3 :door-left-overlay-2
+                                           :door-left-4 :door-left-overlay-4
+                                           :door-right-1 :door-right-overlay-1
+                                           :door-right-2 :door-right-overlay-3
+                                           :door-right-3 :door-right-overlay-2
+                                           :door-right-4 :door-right-overlay-4
+
+                                           } c)))))
+          overlay-sprites (tm/make-tile-sprites tile-set overlay-map)
+          _ (js/console.log (str overlay-map))
+          overlay (tm/make-tilemap overlay-sprites
+                                   :scale scale
+                                   :x (* 16 0)
+                                   :y (* 16 2)
+                                   :xhandle 0 :yhandle 0
+                                   :particle-opts #{:uvs})
+
           player (s/make-sprite :down-1
                                 :scale scale
                                 :x 0 :y 0)
@@ -182,9 +259,9 @@
                                         ;tile-map-sprite tile-map
                                         ;player-sprite player
          container (s/make-container
-                    :children [tile-map player]
+                    :children [tile-map player overlay]
                     :mousedown mousedown
-                    :touchdown mousedown
+                    :touchstart mousedown
                     :scale 3)
          ]
 
@@ -210,7 +287,7 @@
           (while true
             (let [passable?
                   (fn [[x y]]
-                    (boolean (#{:floor :floor-2 :floor-3 :floor-4}
+                    (boolean (passable-tile-set
                               (get-in level-map [y x]))))
 
                   dest (<! walk-to-chan)
@@ -268,17 +345,37 @@
 
                 new-pos-a (vec2/add pos new-vel-a)
 
-                new-pos (vec2/scale (line/constrain
-                                     {:passable? (fn [x y]
-                                                   (#{:floor :floor-2 :floor-3 :floor-4}
-                                                    (get-in level-map [y x])))
-                                      :h-edge 0.01
-                                      :v-edge 0.01
-                                      :minus-h-edge 0.99
-                                      :minus-v-edge 0.7}
-                                     (vec2/scale pos (/ 1 16))
-                                     (vec2/scale new-pos-a (/ 1 16)))
-                                    16)
+                ;; constrain for walls
+                c-pos (line/constrain
+                       {:passable? (fn [x y]
+                                     (passable-tile-set
+                                      (get-in level-map [y x])))
+                        :h-edge 0.01
+                        :v-edge 0.01
+                        :minus-h-edge 0.99
+                        :minus-v-edge 0.99}
+                       (vec2/scale pos (/ 1 16))
+                       (vec2/scale new-pos-a (/ 1 16)))
+
+                c-pos (line/constrain
+                       {:passable? door-horiz-constrain-passable?
+                        :h-edge 0.75
+                        :v-edge 0.01
+                        :minus-h-edge 0.25
+                        :minus-v-edge 0.99}
+                       (vec2/scale pos (/ 1 16))
+                       c-pos)
+
+                c-pos (line/constrain
+                       {:passable? door-vert-constrain-passable?
+                        :h-edge 0.01
+                        :v-edge 0.75
+                        :minus-h-edge 0.99
+                        :minus-v-edge 0.25}
+                       (vec2/scale pos (/ 1 16))
+                       c-pos)
+
+                new-pos (vec2/scale c-pos 16)
                 new-vel (vec2/sub new-pos pos)
                 ]
                                         ;(log "->" new-pos-a new-pos new-vel-a new-vel)
