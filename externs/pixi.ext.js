@@ -571,6 +571,9 @@ PIXI.Container.prototype = {
     "touchdown": {},
     "touchup": {},
     "touchmove": {},
+    "tap": {},
+    "touchstart": {},
+    "touchend": {},
     "touchupoutside": {},
     "worldTransform": {},
 
