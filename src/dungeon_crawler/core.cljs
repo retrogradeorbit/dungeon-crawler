@@ -255,6 +255,7 @@
                                    :scale scale
                                    :x (* 16 0)
                                    :y (* 16 2)
+                                   :alpha 1.0
                                    :xhandle 0 :yhandle 0
                                    :particle-opts #{:uvs})
 
