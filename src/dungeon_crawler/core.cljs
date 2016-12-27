@@ -288,6 +288,19 @@
                     :scale 3)
          ]
 
+        ;; camera tracking
+        (go
+          (loop [cam (:pos @state)]
+            (let [[cx cy] (vec2/get-xy cam)]
+
+              (s/set-pivot! container (/ (int (* 3 cx)) 3) (/ (int (* 3 cy)) 3) ;(int cx) (int cy)
+                            )
+              (<! (e/next-frame))
+              (let [next-pos (:pos @state)
+                    v (vec2/sub next-pos cam)
+                    mag (vec2/magnitude-squared v)]
+                (recur (vec2/add cam (vec2/scale v (* 0.00001 mag))))))))
+
         ;; door opens and closes
         (go
           (while true
@@ -404,7 +417,8 @@
                                         ;(log "->" new-pos-a new-pos new-vel-a new-vel)
 
             (swap! state assoc :pos new-pos)
-            (s/set-pos! player new-pos)
+            (let [[xp yp] (vec2/get-xy new-pos)]
+              (s/set-pos! player xp yp))
 
             (case (vec2/direction-quad new-vel)
               :left
