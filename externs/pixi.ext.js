@@ -508,7 +508,8 @@ PIXI.ticker.Ticker.prototype = {
 PIXI.DisplayObject.prototype = {
   /* missing parameters needed by infinitelives */
   "pivot": {},
-  "texture": {},
+    "texture": {},
+    "hitArea": function () {},
 
   "constructor": function () {},
   "updateTransform": function () {},
@@ -562,6 +563,17 @@ PIXI.DisplayObject.prototype = {
   "setMaxListeners": function () {}
 };
 PIXI.Container.prototype = {
+    /* missing properties that get set by infinitelives */
+    "mousedown": {},
+    "mouseup": {},
+    "mousemove": {},
+    "mouseupoutside": {},
+    "touchdown": {},
+    "touchup": {},
+    "touchmove": {},
+    "touchupoutside": {},
+    "worldTransform": {},
+
   "constructor": function () {},
   "onChildrenChange": function () {},
   "addChild": function () {},
