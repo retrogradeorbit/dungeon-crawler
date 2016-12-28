@@ -170,6 +170,24 @@
    :right-action {:pos [16 48] :size [16 16]}
    :down-action {:pos [32 48] :size [16 16]}})
 
+(def tile-to-overlay-map
+  {:door-top-left :door-top-overlay-1
+   :door-top-right :door-top-overlay-3
+   :door-bottom-left :door-top-overlay-2
+   :door-bottom-right :door-top-overlay-4
+   :door-bottom-1 :door-bottom-overlay-1
+   :door-bottom-2 :door-bottom-overlay-3
+   :door-bottom-3 :door-bottom-overlay-2
+   :door-bottom-4 :door-bottom-overlay-4
+   :door-left-1 :door-left-overlay-1
+   :door-left-2 :door-left-overlay-3
+   :door-left-3 :door-left-overlay-2
+   :door-left-4 :door-left-overlay-4
+   :door-right-1 :door-right-overlay-1
+   :door-right-2 :door-right-overlay-3
+   :door-right-3 :door-right-overlay-2
+   :door-right-4 :door-right-overlay-4})
+
 (defonce canvas
   (c/init {:layers [:bg :tilemap :ui]
            :background bg-colour
@@ -229,24 +247,7 @@
           room2-overlay-map (into [] (for [row room2-map]
                                  (into []
                                        (for [c row]
-                                         ({:door-top-left :door-top-overlay-1
-                                           :door-top-right :door-top-overlay-3
-                                           :door-bottom-left :door-top-overlay-2
-                                           :door-bottom-right :door-top-overlay-4
-                                           :door-bottom-1 :door-bottom-overlay-1
-                                           :door-bottom-2 :door-bottom-overlay-3
-                                           :door-bottom-3 :door-bottom-overlay-2
-                                           :door-bottom-4 :door-bottom-overlay-4
-                                           :door-left-1 :door-left-overlay-1
-                                           :door-left-2 :door-left-overlay-3
-                                           :door-left-3 :door-left-overlay-2
-                                           :door-left-4 :door-left-overlay-4
-                                           :door-right-1 :door-right-overlay-1
-                                           :door-right-2 :door-right-overlay-3
-                                           :door-right-3 :door-right-overlay-2
-                                           :door-right-4 :door-right-overlay-4
-
-                                           } c)))))
+                                         (tile-to-overlay-map c)))))
           room2-overlay-sprites (tm/make-tile-sprites tile-set room2-overlay-map)
           room2-overlay (tm/make-tilemap room2-overlay-sprites
                                    :scale scale
@@ -259,24 +260,7 @@
           overlay-map (into [] (for [row level-map]
                                  (into []
                                        (for [c row]
-                                         ({:door-top-left :door-top-overlay-1
-                                           :door-top-right :door-top-overlay-3
-                                           :door-bottom-left :door-top-overlay-2
-                                           :door-bottom-right :door-top-overlay-4
-                                           :door-bottom-1 :door-bottom-overlay-1
-                                           :door-bottom-2 :door-bottom-overlay-3
-                                           :door-bottom-3 :door-bottom-overlay-2
-                                           :door-bottom-4 :door-bottom-overlay-4
-                                           :door-left-1 :door-left-overlay-1
-                                           :door-left-2 :door-left-overlay-3
-                                           :door-left-3 :door-left-overlay-2
-                                           :door-left-4 :door-left-overlay-4
-                                           :door-right-1 :door-right-overlay-1
-                                           :door-right-2 :door-right-overlay-3
-                                           :door-right-3 :door-right-overlay-2
-                                           :door-right-4 :door-right-overlay-4
-
-                                           } c)))))
+                                         (tile-to-overlay-map c)))))
           overlay-sprites (tm/make-tile-sprites tile-set overlay-map)
           _ (js/console.log (str overlay-map))
           overlay (tm/make-tilemap overlay-sprites
