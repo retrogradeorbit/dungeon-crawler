@@ -198,7 +198,6 @@
     (and (= x 5) (= y 10))
     (and (= x 5) (= y 13)))))
 
-
 (defonce main
   (go
     ;; load resource url with tile sheet
@@ -222,11 +221,40 @@
           room2-sprites (tm/make-tile-sprites tile-set room2-map)
           room2-tile-map (tm/make-tilemap room2-sprites
                                           :scale scale
-                                          :x (* 16 -10)
-                                          :y (* 16 4)
-                                          ;:alpha 1.0
+                                          :x (* 16 -5)
+                                          :y (* 16 -2)
+                                          :alpha 0.0
                                           :xhandle 0 :yhandle 0
                                           :particle-opts #{:uvs})
+          room2-overlay-map (into [] (for [row room2-map]
+                                 (into []
+                                       (for [c row]
+                                         ({:door-top-left :door-top-overlay-1
+                                           :door-top-right :door-top-overlay-3
+                                           :door-bottom-left :door-top-overlay-2
+                                           :door-bottom-right :door-top-overlay-4
+                                           :door-bottom-1 :door-bottom-overlay-1
+                                           :door-bottom-2 :door-bottom-overlay-3
+                                           :door-bottom-3 :door-bottom-overlay-2
+                                           :door-bottom-4 :door-bottom-overlay-4
+                                           :door-left-1 :door-left-overlay-1
+                                           :door-left-2 :door-left-overlay-3
+                                           :door-left-3 :door-left-overlay-2
+                                           :door-left-4 :door-left-overlay-4
+                                           :door-right-1 :door-right-overlay-1
+                                           :door-right-2 :door-right-overlay-3
+                                           :door-right-3 :door-right-overlay-2
+                                           :door-right-4 :door-right-overlay-4
+
+                                           } c)))))
+          room2-overlay-sprites (tm/make-tile-sprites tile-set room2-overlay-map)
+          room2-overlay (tm/make-tilemap room2-overlay-sprites
+                                   :scale scale
+                                   :x (* 16 -4)
+                                   :y (* 16 -2)
+                                   :alpha 0.0
+                                   :xhandle 0 :yhandle 0
+                                   :particle-opts #{:uvs})
 
           overlay-map (into [] (for [row level-map]
                                  (into []
@@ -282,7 +310,7 @@
                                         ;tile-map-sprite tile-map
                                         ;player-sprite player
          container (s/make-container
-                    :children [tile-map player overlay]
+                    :children [tile-map room2-tile-map player overlay room2-overlay]
                     :mousedown mousedown
                     :touchstart mousedown
                     :scale 3)
@@ -300,6 +328,58 @@
                     v (vec2/sub next-pos cam)
                     mag (vec2/magnitude-squared v)]
                 (recur (vec2/add cam (vec2/scale v (* 0.00001 mag))))))))
+
+        ;; level change opacity as we pass through doors
+        (go
+          (while true
+            (let [pos (vec2/scale (:pos @state) (/ 1 16))
+                  [x y] (vec2/get-xy pos)
+                  xi (int x)
+                  yi (int y)]
+              ;; each doors
+              (cond
+                (and (or (= xi 12) (= xi 13)) (= yi 3))
+                (do ;(js/console.log "upper right" (- y yi))
+                    (s/set-alpha! tile-map (- y yi))
+                    (s/set-alpha! room2-tile-map (- 1 (- y yi)))
+                    (s/set-alpha! room2-overlay (- 1 (- y yi)))
+                    (s/set-alpha! overlay (- y yi))
+                    (s/set-pos! room2-tile-map (* 16 -5) (* 16 -2) )
+                    (s/set-pos! room2-overlay (* 16 -4) (* 16 -2) )
+                    )
+
+                (and (or (= xi 7) (= xi 8)) (= yi 9))
+                (do ;(js/console.log "lower right" (- y yi))
+                    (s/set-alpha! tile-map (- y yi))
+                    (s/set-alpha! room2-tile-map (- 1 (- y yi)))
+                    (s/set-alpha! room2-overlay (- 1 (- y yi)))
+                    (s/set-alpha! overlay (- y yi))
+                    (s/set-pos! room2-tile-map (* 16 6) (* 16 4) )
+                    (s/set-pos! room2-overlay (* 16 7) (* 16 4) )
+                    )
+
+                (and (or (= xi 2) (= xi 3)) (= yi 7))
+                (do ;(js/console.log "lower left" (- y yi))
+                    (s/set-alpha! tile-map (- 1 (- y yi)))
+                    (s/set-alpha! room2-tile-map (- y yi))
+                    (s/set-alpha! room2-overlay (- y yi))
+                    (s/set-alpha! overlay (- 1 (- y yi)))
+                    (s/set-pos! room2-tile-map (* 16 -7) (* 16 7) )
+                    (s/set-pos! room2-overlay (* 16 -6) (* 16 7) )
+                    )
+
+                :default
+                (do ;(js/console.log "none" xi yi)
+                    (s/set-alpha! tile-map 1.0)
+                    (s/set-alpha! room2-tile-map 0.0)
+                    (s/set-alpha! room2-overlay 0.0)
+
+                     (s/set-alpha! overlay 1.0)
+                     ))
+
+              )
+
+            (<! (e/next-frame))))
 
         ;; door opens and closes
         (go
