@@ -233,6 +233,35 @@
       (tm/alter-tile! tile-sprites [0 3] tile-set :door-left-3)
       (tm/alter-tile! tile-sprites [1 3] tile-set :door-left-4))))
 
+(defn walk-to-input [level-map walk-to-chan]
+  (go
+    (while true
+      (let [passable?
+            (fn [[x y]]
+              (boolean (passable-tile-set
+                        (get-in level-map [y x]))))
+
+            dest (<! walk-to-chan)
+
+            [xp yp] (vec2/as-vector
+                     (vec2/scale (:pos @state) (/ 1 16)))
+
+            path (path/A* passable? [(int xp) (int yp)]
+                          dest)
+            ]
+        (when path
+          ;; play out the path into walk-to state
+          ;; from start destination to last
+          (loop [[n & r] path]
+            (swap! state assoc :walk-to n)
+            (while
+                (let [[xd yd] (int-vec n)
+                      [xp yp] (int-vec (vec2/as-vector
+                                        (vec2/scale (:pos @state) (/ 1 16))))]
+                  (or (not= xp xd) (not= yp yd)))
+              (<! (e/next-frame)))
+            (when (seq r) (recur r)))
+          (swap! state assoc :walk-to nil))))))
 
 (defn set-room-fades-up! [tile-map overlay room2-tile-map room2-overlay y yi xp yp]
   (s/set-alpha! tile-map (- y yi))
@@ -383,34 +412,7 @@
         (door-opens-and-closes tile-sprites tile-set)
 
         ;; walk to input
-        (go
-          (while true
-            (let [passable?
-                  (fn [[x y]]
-                    (boolean (passable-tile-set
-                              (get-in level-map [y x]))))
-
-                  dest (<! walk-to-chan)
-
-                  [xp yp] (vec2/as-vector
-                           (vec2/scale (:pos @state) (/ 1 16)))
-
-                  path (path/A* passable? [(int xp) (int yp)]
-                                dest)
-                  ]
-              (when path
-                ;; play out the path into walk-to state
-                ;; from start destination to last
-                (loop [[n & r] path]
-                  (swap! state assoc :walk-to n)
-                  (while
-                      (let [[xd yd] (int-vec n)
-                            [xp yp] (int-vec (vec2/as-vector
-                                              (vec2/scale (:pos @state) (/ 1 16))))]
-                        (or (not= xp xd) (not= yp yd)))
-                    (<! (e/next-frame)))
-                  (when (seq r) (recur r)))
-                (swap! state assoc :walk-to nil)))))
+        (walk-to-input level-map walk-to-chan)
 
         (loop [pos (vec2/vec2 50 50)
                vel (vec2/zero)]
