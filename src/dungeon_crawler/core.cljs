@@ -296,7 +296,7 @@
           tile-sprites (tm/make-tile-sprites tile-set level-map)
           tile-map (tm/make-tilemap tile-sprites
                                     :scale scale
-                                    ;:alpha 0.2
+                                        ;:alpha 0.2
                                     :xhandle 0 :yhandle 0
                                     :particle-opts #{:uvs})
           room2-map (->> room2-map-chars
@@ -310,17 +310,17 @@
                                           :xhandle 0 :yhandle 0
                                           :particle-opts #{:uvs})
           room2-overlay-map (into [] (for [row room2-map]
-                                 (into []
-                                       (for [c row]
-                                         (tile-to-overlay-map c)))))
+                                       (into []
+                                             (for [c row]
+                                               (tile-to-overlay-map c)))))
           room2-overlay-sprites (tm/make-tile-sprites tile-set room2-overlay-map)
           room2-overlay (tm/make-tilemap room2-overlay-sprites
-                                   :scale scale
-                                   :x (* 16 -4)
-                                   :y (* 16 -2)
-                                   :alpha 0.0
-                                   :xhandle 0 :yhandle 0
-                                   :particle-opts #{:uvs})
+                                         :scale scale
+                                         :x (* 16 -4)
+                                         :y (* 16 -2)
+                                         :alpha 0.0
+                                         :xhandle 0 :yhandle 0
+                                         :particle-opts #{:uvs})
 
           overlay-map (into [] (for [row level-map]
                                  (into []
@@ -349,15 +349,8 @@
           ]
       (set! (.-hitArea tile-map) (new js/PIXI.Rectangle 0 0 1000 1000))
       (set! (.-interactive tile-map) true)
-
-      #_ (set! (.-mousedown tile-map) (fn [ev] (put! walk-to-chan (let [[x y] (s/container-transform tile-map (.-data.global ev))
-                                                                        x (int (/ x 16))
-                                                                        y (int (/ y 16))]
-                                                                    [x y]) )))
       (m/with-sprite :tilemap
         [
-                                        ;tile-map-sprite tile-map
-                                        ;player-sprite player
          container (s/make-container
                     :children [tile-map room2-tile-map player overlay room2-overlay]
                     :mousedown mousedown
