@@ -483,8 +483,7 @@
                                         ;(log "->" new-pos-a new-pos new-vel-a new-vel)
 
             (swap! state assoc :pos new-pos)
-            (let [[xp yp] (vec2/get-xy new-pos)]
-              (s/set-pos! player xp yp))
+            (s/set-pos! player new-pos)
 
             (case (vec2/direction-quad new-vel)
               :left
