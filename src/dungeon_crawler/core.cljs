@@ -216,6 +216,23 @@
     (and (= x 5) (= y 10))
     (and (= x 5) (= y 13)))))
 
+(defn door-opens-and-closes [tile-sprites tile-set]
+  (go
+    (while true
+      ;; closed
+      (<! (e/wait-frames 120))
+      (tm/alter-tile! tile-sprites [0 2] tile-set :door-left-shut-1)
+      (tm/alter-tile! tile-sprites [1 2] tile-set :door-left-shut-2)
+      (tm/alter-tile! tile-sprites [0 3] tile-set :door-left-shut-3)
+      (tm/alter-tile! tile-sprites [1 3] tile-set :door-left-shut-4)
+
+      ;; open
+      (<! (e/wait-frames 120))
+      (tm/alter-tile! tile-sprites [0 2] tile-set :door-left-1)
+      (tm/alter-tile! tile-sprites [1 2] tile-set :door-left-2)
+      (tm/alter-tile! tile-sprites [0 3] tile-set :door-left-3)
+      (tm/alter-tile! tile-sprites [1 3] tile-set :door-left-4))))
+
 (defonce main
   (go
     ;; load resource url with tile sheet
@@ -366,21 +383,7 @@
             (<! (e/next-frame))))
 
         ;; door opens and closes
-        (go
-          (while true
-            ;; closed
-            (<! (e/wait-frames 120))
-            (tm/alter-tile! tile-sprites [0 2] tile-set :door-left-shut-1)
-            (tm/alter-tile! tile-sprites [1 2] tile-set :door-left-shut-2)
-            (tm/alter-tile! tile-sprites [0 3] tile-set :door-left-shut-3)
-            (tm/alter-tile! tile-sprites [1 3] tile-set :door-left-shut-4)
-
-            ;; open
-            (<! (e/wait-frames 120))
-            (tm/alter-tile! tile-sprites [0 2] tile-set :door-left-1)
-            (tm/alter-tile! tile-sprites [1 2] tile-set :door-left-2)
-            (tm/alter-tile! tile-sprites [0 3] tile-set :door-left-3)
-            (tm/alter-tile! tile-sprites [1 3] tile-set :door-left-4)))
+        (door-opens-and-closes tile-sprites tile-set)
 
         ;; walk to input
         (go
