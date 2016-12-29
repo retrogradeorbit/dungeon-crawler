@@ -233,6 +233,25 @@
       (tm/alter-tile! tile-sprites [0 3] tile-set :door-left-3)
       (tm/alter-tile! tile-sprites [1 3] tile-set :door-left-4))))
 
+
+(defn set-room-fades-up! [tile-map overlay room2-tile-map room2-overlay y yi xp yp]
+  (s/set-alpha! tile-map (- y yi))
+  (s/set-alpha! overlay (- y yi))
+  (s/set-alpha! room2-tile-map (- 1 (- y yi)))
+  (s/set-alpha! room2-overlay (- 1 (- y yi)))
+
+  (s/set-pos! room2-tile-map (* 16 xp) (* 16 yp))
+  (s/set-pos! room2-overlay (* 16 (inc xp)) (* 16 yp)))
+
+(defn set-room-fades-down! [tile-map overlay room2-tile-map room2-overlay y yi xp yp]
+  (s/set-alpha! tile-map (- 1 (- y yi)))
+  (s/set-alpha! overlay (- 1 (- y yi)))
+  (s/set-alpha! room2-tile-map (- y yi))
+  (s/set-alpha! room2-overlay (- y yi))
+
+  (s/set-pos! room2-tile-map (* 16 xp) (* 16 yp))
+  (s/set-pos! room2-overlay (* 16 (inc xp)) (* 16 yp)))
+
 (defonce main
   (go
     ;; load resource url with tile sheet
@@ -340,45 +359,23 @@
               ;; each doors
               (cond
                 (and (or (= xi 12) (= xi 13)) (= yi 3))
-                (do ;(js/console.log "upper right" (- y yi))
-                    (s/set-alpha! tile-map (- y yi))
-                    (s/set-alpha! room2-tile-map (- 1 (- y yi)))
-                    (s/set-alpha! room2-overlay (- 1 (- y yi)))
-                    (s/set-alpha! overlay (- y yi))
-                    (s/set-pos! room2-tile-map (* 16 -5) (* 16 -2) )
-                    (s/set-pos! room2-overlay (* 16 -4) (* 16 -2) )
-                    )
+                (set-room-fades-up! tile-map overlay room2-tile-map room2-overlay
+                                 y yi -5 -2)
 
                 (and (or (= xi 7) (= xi 8)) (= yi 9))
-                (do ;(js/console.log "lower right" (- y yi))
-                    (s/set-alpha! tile-map (- y yi))
-                    (s/set-alpha! room2-tile-map (- 1 (- y yi)))
-                    (s/set-alpha! room2-overlay (- 1 (- y yi)))
-                    (s/set-alpha! overlay (- y yi))
-                    (s/set-pos! room2-tile-map (* 16 6) (* 16 4) )
-                    (s/set-pos! room2-overlay (* 16 7) (* 16 4) )
-                    )
+                (set-room-fades-up! tile-map overlay room2-tile-map room2-overlay
+                                 y yi 6 4)
 
                 (and (or (= xi 2) (= xi 3)) (= yi 7))
-                (do ;(js/console.log "lower left" (- y yi))
-                    (s/set-alpha! tile-map (- 1 (- y yi)))
-                    (s/set-alpha! room2-tile-map (- y yi))
-                    (s/set-alpha! room2-overlay (- y yi))
-                    (s/set-alpha! overlay (- 1 (- y yi)))
-                    (s/set-pos! room2-tile-map (* 16 -7) (* 16 7) )
-                    (s/set-pos! room2-overlay (* 16 -6) (* 16 7) )
-                    )
+                (set-room-fades-down! tile-map overlay room2-tile-map room2-overlay
+                                 y yi -7 7)
 
                 :default
-                (do ;(js/console.log "none" xi yi)
-                    (s/set-alpha! tile-map 1.0)
-                    (s/set-alpha! room2-tile-map 0.0)
-                    (s/set-alpha! room2-overlay 0.0)
-
-                     (s/set-alpha! overlay 1.0)
-                     ))
-
-              )
+                (do
+                  (s/set-alpha! tile-map 1.0)
+                  (s/set-alpha! room2-tile-map 0.0)
+                  (s/set-alpha! room2-overlay 0.0)
+                  (s/set-alpha! overlay 1.0))))
 
             (<! (e/next-frame))))
 
