@@ -281,6 +281,18 @@
   (s/set-pos! room2-tile-map (* 16 xp) (* 16 yp))
   (s/set-pos! room2-overlay (* 16 (inc xp)) (* 16 yp)))
 
+
+(defn make-tile-maps [tile-set tile-map-chars]
+  (let [level-map (->> tile-map-chars
+                       (tm/make-tile-map key-for))
+        tile-sprites (tm/make-tile-sprites tile-set level-map)
+        tile-map (tm/make-tilemap tile-sprites
+                                  :scale scale
+                                        ;:alpha 0.2
+                                  :xhandle 0 :yhandle 0
+                                  :particle-opts #{:uvs})]
+    [level-map tile-sprites tile-map]))
+
 (defonce main
   (go
     ;; load resource url with tile sheet
@@ -291,24 +303,12 @@
      hero)
 
     (let [tile-set (tm/make-tile-set :tiles tile-set-mapping [16 16])
-          level-map (->> tile-map-chars
-                         (tm/make-tile-map key-for))
-          tile-sprites (tm/make-tile-sprites tile-set level-map)
-          tile-map (tm/make-tilemap tile-sprites
-                                    :scale scale
-                                        ;:alpha 0.2
-                                    :xhandle 0 :yhandle 0
-                                    :particle-opts #{:uvs})
-          room2-map (->> room2-map-chars
-                         (tm/make-tile-map key-for))
-          room2-sprites (tm/make-tile-sprites tile-set room2-map)
-          room2-tile-map (tm/make-tilemap room2-sprites
-                                          :scale scale
-                                          :x (* 16 -5)
-                                          :y (* 16 -2)
-                                          :alpha 0.0
-                                          :xhandle 0 :yhandle 0
-                                          :particle-opts #{:uvs})
+          [level-map tile-sprites tile-map]
+          (make-tile-maps tile-set tile-map-chars)
+
+          [room2-map room2-sprites room2-tile-map]
+          (make-tile-maps tile-set room2-map-chars)
+
           room2-overlay-map (into [] (for [row room2-map]
                                        (into []
                                              (for [c row]
