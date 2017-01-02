@@ -234,12 +234,12 @@
       (tm/alter-tile! tile-sprites [1 3] tile-set :door-left-4))))
 
 (defn- wait-until-player-on-tile [pos]
-  (while
-      (let [[xd yd] (int-vec pos)
-            [xp yp] (int-vec (vec2/as-vector
-                              (vec2/scale (:pos @state) (/ 1 16))))]
-        (or (not= xp xd) (not= yp yd)))
-    (<! (e/next-frame))))
+  (go (while
+          (let [[xd yd] (int-vec pos)
+                [xp yp] (int-vec (vec2/as-vector
+                                  (vec2/scale (:pos @state) (/ 1 16))))]
+            (or (not= xp xd) (not= yp yd)))
+        (<! (e/next-frame)))))
 
 (defn walk-to-input [level-map walk-to-chan]
   (go
@@ -257,12 +257,13 @@
             path (path/A* passable? [(int xp) (int yp)]
                           dest)
             ]
+
         (when path
           ;; play out the path into walk-to state
           ;; from start destination to last
           (loop [[n & r] path]
             (swap! state assoc :walk-to n)
-            (wait-until-player-on-tile n)
+            (<! (wait-until-player-on-tile n))
             (when (seq r) (recur r)))
           (swap! state assoc :walk-to nil))))))
 
