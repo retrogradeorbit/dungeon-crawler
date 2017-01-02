@@ -295,7 +295,10 @@
                                         ;:alpha 0.2
                                   :xhandle 0 :yhandle 0
                                   :particle-opts #{:uvs})]
-    [level-map tile-sprites tile-map]))
+    {
+     :map level-map
+     :sprites tile-sprites
+     :tiles tile-map}))
 
 (defonce main
   (go
@@ -307,10 +310,14 @@
      hero)
 
     (let [tile-set (tm/make-tile-set :tiles tile-set-mapping [16 16])
-          [level-map tile-sprites tile-map]
+          {level-map :map
+           tile-sprites :sprites
+           tile-map :tiles}
           (make-tile-maps tile-set tile-map-chars)
 
-          [room2-map room2-sprites room2-tile-map]
+          {room2-map :map
+           room2-sprites :sprites
+           room2-tile-map :tiles}
           (make-tile-maps tile-set room2-map-chars)
 
           room2-overlay-map (into [] (for [row room2-map]
