@@ -48,12 +48,12 @@
 
 (def room2-map-chars
   [
-   "         -=         "
-   "┌────────{}────────╖"
-   "│.o.o.o.o.o.o.o.o.o║"
-   "│o.o.o.o.o.o.o.o.o.║"
-   "╘()══════════════()╝"
-   " []              [] "
+   "         -=          "
+   "┌────────{}────────╖ "
+   "│.o.o.o.o.o.o.o.o.o12"
+   "│o.o.o.o.o.o.o.o.o.34"
+   "╘()══════════════()╝ "
+   " []              []  "
    ])
 
 (def key-for
@@ -86,6 +86,14 @@
    "@" :door-left-shut-2
    "A" :door-left-shut-3
    "B" :door-left-shut-4
+   "1" :door-right-1
+   "2" :door-right-2
+   "3" :door-right-3
+   "4" :door-right-4
+   "5" :door-right-shut-1
+   "6" :door-right-shut-2
+   "7" :door-right-shut-3
+   "8" :door-right-shut-4
    "." :floor
    "," :floor-2
    "o" :floor-3
@@ -118,6 +126,16 @@
    :door-bottom-2 [128 112]
    :door-bottom-3 [112 128]
    :door-bottom-4 [128 128]
+
+   :door-right-1 [0 144]
+   :door-right-2 [16 144]
+   :door-right-3 [0 160]
+   :door-right-4 [16 160]
+   :door-right-shut-1 [32 144]
+   :door-right-shut-2 [48 144]
+   :door-right-shut-3 [32 160]
+   :door-right-shut-4 [48 160]
+
    :door-left-1 [144 144]
    :door-left-2 [160 144]
    :door-left-3 [144 160]
@@ -216,7 +234,7 @@
     (and (= x 5) (= y 10))
     (and (= x 5) (= y 13)))))
 
-(defn door-opens-and-closes [tile-sprites tile-set]
+(defn door-opens-and-closes [tile-sprites tile-set room2-sprites room2-set]
   (go
     (while true
       ;; closed
@@ -225,13 +243,22 @@
       (tm/alter-tile! tile-sprites [1 2] tile-set :door-left-shut-2)
       (tm/alter-tile! tile-sprites [0 3] tile-set :door-left-shut-3)
       (tm/alter-tile! tile-sprites [1 3] tile-set :door-left-shut-4)
+      (tm/alter-tile! room2-sprites [19 2] room2-set :door-right-shut-1)
+      (tm/alter-tile! room2-sprites [20 2] room2-set :door-right-shut-2)
+      (tm/alter-tile! room2-sprites [19 3] room2-set :door-right-shut-3)
+      (tm/alter-tile! room2-sprites [20 3] room2-set :door-right-shut-4)
 
       ;; open
       (<! (e/wait-frames 120))
       (tm/alter-tile! tile-sprites [0 2] tile-set :door-left-1)
       (tm/alter-tile! tile-sprites [1 2] tile-set :door-left-2)
       (tm/alter-tile! tile-sprites [0 3] tile-set :door-left-3)
-      (tm/alter-tile! tile-sprites [1 3] tile-set :door-left-4))))
+      (tm/alter-tile! tile-sprites [1 3] tile-set :door-left-4)
+      (tm/alter-tile! room2-sprites [19 2] room2-set :door-right-1)
+      (tm/alter-tile! room2-sprites [20 2] room2-set :door-right-2)
+      (tm/alter-tile! room2-sprites [19 3] room2-set :door-right-3)
+      (tm/alter-tile! room2-sprites [20 3] room2-set :door-right-4)
+      )))
 
 (defn- wait-until-player-on-tile [pos]
   (go (while
@@ -412,7 +439,7 @@
             (<! (e/next-frame))))
 
         ;; door opens and closes
-        (door-opens-and-closes tile-sprites tile-set)
+        (door-opens-and-closes tile-sprites tile-set room2-sprites tile-set)
 
         ;; walk to input
         (walk-to-input level-map walk-to-chan)
